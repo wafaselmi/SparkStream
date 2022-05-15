@@ -21,23 +21,21 @@ import java.util.Arrays;
 import java.util.List;
 
 public class Radar {
-    // Function to add x in arr
-    public static String[] addX(String arr[], String x)
+    //adds an element into the array
+    public static String[] addArray(String arr[], String x)
     {
         int i;
 
-        // create a new ArrayList
-        List<String> arrlist
-                = new ArrayList<String>(
-                Arrays.asList(arr));
+        // creates a new ArrayList
+        List<String>arraylist= new ArrayList<String>(Arrays.asList(arr));
 
-        // Add the new element
-        arrlist.add(x);
+        // Adds the new element
+        arraylist.add(x);
 
-        // Convert the Arraylist to array
-        arr = arrlist.toArray(arr);
+        // Converts the Arraylist to array
+        arr = arraylist.toArray(arr);
 
-        // return the array
+        // returns the array
         return arr;
     }
 
@@ -52,6 +50,11 @@ public class Radar {
         return (distance);
     }
 
+
+
+    private static double speed(double distance /*km*/, double time /*ms*/) {
+        return (distance /  time) *60 *60 * 1000;
+    }
     private static double radius(double deg) {
         return (deg * Math.PI / 180.0);
     }
@@ -59,11 +62,6 @@ public class Radar {
     private static double degree(double rad) {
         return (rad * 180.0 / Math.PI);
     }
-
-    private static double speed(double dist /*km*/, double time /*ms*/) {
-        return (dist /  time) *60 *60 * 1000;
-    }
-
 
     public static void main(String[] args) throws InterruptedException,IOException {
 
@@ -74,7 +72,7 @@ public class Radar {
         SparkConf conf = new SparkConf()
                 .setAppName("Radar");
         JavaStreamingContext jssc =
-                new JavaStreamingContext(conf, Durations.seconds(15));
+                new JavaStreamingContext(conf, Durations.seconds(20));
 
 
 
@@ -84,7 +82,7 @@ public class Radar {
 
         // carId,lat,long,time
         JavaDStream<String[]> seperatedLines = lines.map(line -> line.split(","));
-        JavaPairDStream<String,String[]> seperatedSession = seperatedLines.mapToPair(line -> new Tuple2<>(line[0], addX(line,"0")));
+        JavaPairDStream<String,String[]> seperatedSession = seperatedLines.mapToPair(line -> new Tuple2<>(line[0], addArray(line,"0")));
 
         JavaPairDStream<String,String[]> calculatedSpeed = seperatedSession.reduceByKey((a,b) -> {
             double distance = dist(Double.parseDouble(a[1]),Double.parseDouble(a[2]),Double.parseDouble(b[1]),Double.parseDouble(b[2]));
